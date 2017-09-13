@@ -2,6 +2,7 @@ package com.libertymutual.goforcode.invoicify.configuration;
 
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Profile;
+import org.springframework.security.crypto.password.PasswordEncoder;
 
 import com.libertymutual.goforcode.invoicify.models.User;
 import com.libertymutual.goforcode.invoicify.repositories.UserRepo;
@@ -10,11 +11,11 @@ import com.libertymutual.goforcode.invoicify.repositories.UserRepo;
 @Profile("development")
 public class SeedData {
 	
-	public SeedData(UserRepo userRepo) {
-		userRepo.save(new User("peter", "password"));
-		userRepo.save(new User("admin", "admin"));
-		userRepo.save(new User("clerk", "clerk"));
-		userRepo.save(new User("accountant", "accountant"));
+	public SeedData(UserRepo userRepo, PasswordEncoder encoder) {
+		userRepo.save(new User("peter", encoder.encode("password"), "STUDENT"));
+		userRepo.save(new User("admin", encoder.encode("admin"), "ADMIN"));
+		userRepo.save(new User("clerk", encoder.encode("clerk"), "CLERK"));
+		userRepo.save(new User("accountant", encoder.encode("accountant"), "ACCOUNTANT"));
 	}
 	
 	

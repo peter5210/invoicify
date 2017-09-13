@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html>
+
+	<head>
+		<title>Sign Up DUDE!</title>
+	</head>
+
+	<body>
+		<h1>Sign up Page</h1>
+		
+		{{#errorMessage}}
+			{{ errorMessage }}
+		{{/errorMessage}}
+		
+		
+	<form method="post" action="/signup">
+	 <input type="text" name="username" placeholder="Enter Your User Name" required>
+	 <br>
+	 <input type="text" name="password" placeholder="Enter Your Password" required>
+	 <br>
+	<button>Sign up</button>
+	<input type="hidden" name="{{ _csrf.parameterName }}" value="{{ _csrf.token }}">
+	</form>
+		
+	</body>
+	
+</html>

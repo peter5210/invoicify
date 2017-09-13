@@ -4,18 +4,25 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
-import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetailsService;
-import org.springframework.security.provisioning.InMemoryUserDetailsManager;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
+
+import com.libertymutual.goforcode.invoicify.services.InvoicifyUserDetailsService;
 
 @EnableWebSecurity
 public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
+	
+	private InvoicifyUserDetailsService UserDetailsService;
+	
+	 public SecurityConfiguration(InvoicifyUserDetailsService UserDetailsService) {
+		this.UserDetailsService = UserDetailsService;
+	}
 
 	@Override
 	protected void configure(HttpSecurity http) throws Exception {
 		http
-			// .csrf().disable()
-			.authorizeRequests().antMatchers("/", "/css/**", "/js/**").permitAll()
+			.authorizeRequests().antMatchers("/", "/css/**", "/js/**", "/signup").permitAll()
 				.antMatchers("/invoices/**")
 					.hasAnyRole("ADMIN", "ACCOUNTANT")
 				.antMatchers("/billing-records/**")
@@ -25,15 +32,14 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
 			.anyRequest().authenticated()
 			.and()
 				.formLogin();
-//					.loginPage("/login");
+	}
+	
+	@Bean
+	public PasswordEncoder passwordEncorder() {
+		return new BCryptPasswordEncoder();
 	}
 
-	@Bean
 	public UserDetailsService userDetailService() {
-		InMemoryUserDetailsManager manager = new InMemoryUserDetailsManager();
-		manager.createUser(User.withUsername("admin").password("admin").roles("ADMIN").build());
-		manager.createUser(User.withUsername("clerk").password("clerk").roles("CLERK").build());
-		manager.createUser(User.withUsername("accountant").password("accountant").roles("ACCOUNTANT").build());
-		return manager;
+		return UserDetailsService;
 	}
 }

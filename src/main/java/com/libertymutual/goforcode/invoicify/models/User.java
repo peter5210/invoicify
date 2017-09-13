@@ -1,15 +1,21 @@
 package com.libertymutual.goforcode.invoicify.models;
 
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.List;
+import java.util.stream.Collectors;
 
+import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.OneToMany;
 import javax.persistence.Table;
-
 import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.AuthorityUtils;
 import org.springframework.security.core.userdetails.UserDetails;
 
 @Entity
@@ -26,11 +32,31 @@ public class User implements UserDetails {
 	@Column(nullable=false)
 	private String password;
 	
+	@OneToMany(fetch=FetchType.EAGER, mappedBy="user", cascade=CascadeType.ALL)
+	public List<UserRole> roles;
 	
+	public User() {}
+	
+	public User(String username, String password, String roleName) {
+		this.username = username;
+		this.password = password;
+		
+		roles = new ArrayList<UserRole>();
+		roles.add(new UserRole(roleName, this));
+	}
+
 	@Override
 	public Collection<? extends GrantedAuthority> getAuthorities() {
-		// TODO Auto-generated method stub
-		return null;
+//		List<String> roleNames = new ArrayList<String>();
+//		for(UserRole role : roles) {
+//			roleNames.add("ROLE_" + role.getName());
+//		}
+		List<String> roleNames = roles.stream()
+			.map(userRole -> "ROLE_" + userRole.getName())
+			.collect(Collectors.toList());
+		
+		String authorityString = String.join(",",  roleNames);
+		return AuthorityUtils.commaSeparatedStringToAuthorityList(authorityString);
 	}
 
 	@Override
@@ -79,12 +105,13 @@ public class User implements UserDetails {
 	public void setPassword(String password) {
 		this.password = password;
 	}
-	
-	public User() {}
-	
-	public User(String username, String password) {
-		this.username = username;
-		this.password = password;
+
+	public List<UserRole> getRoles() {
+		return roles;
+	}
+
+	public void setRoles(List<UserRole> roles) {
+		this.roles = roles;
 	}
 	
 	
